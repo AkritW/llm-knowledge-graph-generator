@@ -5,6 +5,7 @@ const envSchema = z.object({
   RABBITMQ_URL: z.string(),
   DEEPSEEK_API_KEY: z.string(),
   BATCH_SIZE: z.string(),
+  PRE_FETCH: z.string(),
 })
 
 export const env = envSchema.parse(process.env)
