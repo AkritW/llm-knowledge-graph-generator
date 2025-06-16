@@ -4,7 +4,6 @@ const envSchema = z.object({
   LEAD_DATABASE_URL: z.string(),
   RABBITMQ_URL: z.string(),
   DEEPSEEK_API_KEY: z.string(),
-  BATCH_SIZE: z.string(),
   PRE_FETCH: z.string(),
 })
 
