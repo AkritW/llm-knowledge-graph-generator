@@ -29,7 +29,7 @@ Return ONLY a markdown code block containing JSON with this structure:
 Processing Rules:
 **For Description (Mandatory):**
 - Extract what the company does/sells and their core identity
-- Format as 2-3 dense paragraphs 
+- Format as 2-3 dense paragraphs in English
 - Synthesize information from multiple page sections
 - Remove marketing fluff while preserving factual claims
 - ALWAYS output in English (translate if needed)
@@ -48,6 +48,7 @@ Processing Rules:
 - NEVER invent facts - omit uncertain details
 - NEVER output placeholders like "N/A"
 - NEVER include markdown in JSON values
+- NEVER write a description or news in other language other than English
 
 ### Error Handling
 Return { "errorMessage": "message" } instead of standard JSON ONLY when all url(s) fit the following description:
@@ -68,6 +69,8 @@ const reqLlm = (userPrompt: string) =>
   })
 
 export const llm = async (payload: LlmInputSchema) => {
+  console.log("Input:", normalizeInput(payload))
+
   const rawGptOutput = await reqLlm(
     JSON.stringify(normalizeInput(payload), null, 2)
   )
@@ -86,7 +89,9 @@ export const llm = async (payload: LlmInputSchema) => {
       data = data[0]
     }
     if (data?.errorMessage) {
-      throw Error(`LLM responded with error message: ${data.errorMessage}`)
+      return {
+        errorMessage: data.errorMessage as string,
+      }
     }
   } catch {
     throw Error(`Failed to parse: ${normalizeJson(contentOutput)}`)
