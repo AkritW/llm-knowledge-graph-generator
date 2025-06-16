@@ -26,7 +26,7 @@ export const dbdExports = pgTable("dbd_exports", {
     length: 255,
   }).notNull(),
   status: varchar("status", { length: 255 }).notNull(),
-  businessTypeCode: varchar("business_type_code", { length: 255 }).notNull(),
+  tsicCode: varchar("tsic_code", { length: 255 }).notNull(),
   businessTypeName: varchar("business_type_name", { length: 255 }).notNull(),
   city: varchar("city", { length: 255 }).notNull(),
   registeredCapitalThb: decimal("registered_capital_thb", {
@@ -56,6 +56,14 @@ export const dbdExports = pgTable("dbd_exports", {
 })
 
 export const dbdExportRelations = relations(dbdExports, ({ one, many }) => ({
+  sector: one(businessSectors, {
+    fields: [dbdExports.tsicCode],
+    references: [businessSectors.tsicCode],
+  }),
+  industry: one(businessIndustries, {
+    fields: [dbdExports.tsicCode],
+    references: [businessIndustries.tsicCode],
+  }),
   serps: many(serps),
   extractedSerp: one(extractedSerps, {
     fields: [dbdExports.registrationNumber],
@@ -65,7 +73,41 @@ export const dbdExportRelations = relations(dbdExports, ({ one, many }) => ({
   contents: many(contents),
   emails: many(emails),
   phoneNumbers: many(phoneNumbers),
+  summary: one(companySummaries, {
+    fields: [dbdExports.registrationNumber],
+    references: [companySummaries.registrationNumber],
+  }),
 }))
+
+export const businessSectors = pgTable("business_sectors", {
+  tsicCode: varchar("tsic_code", { length: 255 }).primaryKey(),
+  sector: text("sector").notNull(),
+})
+
+export const businessSectorRelations = relations(
+  businessSectors,
+  ({ one }) => ({
+    dbdExport: one(dbdExports, {
+      fields: [businessSectors.tsicCode],
+      references: [dbdExports.tsicCode],
+    }),
+  })
+)
+
+export const businessIndustries = pgTable("business_industries", {
+  tsicCode: varchar("tsic_code", { length: 255 }).primaryKey(),
+  industry: text("industry").notNull(),
+})
+
+export const businessIndustryRelations = relations(
+  businessIndustries,
+  ({ one }) => ({
+    dbdExport: one(dbdExports, {
+      fields: [businessIndustries.tsicCode],
+      references: [dbdExports.tsicCode],
+    }),
+  })
+)
 
 export const serpType = pgEnum("serp_type", ["juristic_thai", "juristic_en"])
 
@@ -236,3 +278,23 @@ export const phoneNumberRelations = relations(phoneNumbers, ({ one }) => ({
     references: [companyUrls.id],
   }),
 }))
+
+export const companySummaries = pgTable("company_summaries", {
+  registrationNumber: varchar("registration_number", {
+    length: 255,
+  })
+    .primaryKey()
+    .references(() => dbdExports.registrationNumber),
+  description: text("description"),
+  news: text("news"),
+})
+
+export const companySummaryRelations = relations(
+  companySummaries,
+  ({ one }) => ({
+    dbdExport: one(dbdExports, {
+      fields: [companySummaries.registrationNumber],
+      references: [dbdExports.registrationNumber],
+    }),
+  })
+)
