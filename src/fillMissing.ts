@@ -18,6 +18,7 @@ const a = [
     (
       await db.query.companyUrls.findMany({
         where: isNotNull(companyUrls.isSelected),
+        columns: { registrationNumber: true },
       })
     ).map((_) => _.registrationNumber)
   ),
@@ -25,7 +26,11 @@ const a = [
 console.log(`a length: ${a.length}`)
 
 const b = new Set(
-  (await db.query.companySummaries.findMany()).map((_) => _.registrationNumber)
+  (
+    await db.query.companySummaries.findMany({
+      columns: { registrationNumber: true },
+    })
+  ).map((_) => _.registrationNumber)
 )
 console.log(`b length: ${b.size}`)
 
