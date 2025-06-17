@@ -163,7 +163,7 @@ export const companyUrls = pgTable(
     })
       .notNull()
       .references(() => dbdExports.registrationNumber),
-    url: text("url"),
+    url: text("url").notNull(),
     isSelected: boolean("is_selected").notNull().default(false),
     rawHtml: text("raw_html"),
     createdAt: timestamp("created_at").defaultNow(),
@@ -192,15 +192,17 @@ export const contents = pgTable(
     registrationNumber: varchar("registration_number", { length: 255 })
       .references(() => dbdExports.registrationNumber)
       .notNull(),
-    content: text("content"),
-    urlId: integer("url_id")
-      .references(() => companyUrls.id)
-      .notNull(),
+    content: text("content").notNull(),
+    url: text("url").notNull(),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (table) => [
-    index("contents_url_id_idx").on(table.urlId),
+    index("contents_url_idx").on(table.url),
     index("contents_registration_number_idx").on(table.registrationNumber),
+    index("contents_registration_number_url_idx").on(
+      table.registrationNumber,
+      table.url
+    ),
   ]
 )
 
@@ -209,10 +211,10 @@ export const contentRelations = relations(contents, ({ one }) => ({
     fields: [contents.registrationNumber],
     references: [dbdExports.registrationNumber],
   }),
-  url: one(companyUrls, {
-    fields: [contents.urlId],
-    references: [companyUrls.id],
-  }),
+  // url: one(companyUrls, {
+  //   fields: [contents.url],
+  //   references: [companyUrls.url],
+  // }),
 }))
 
 export const emails = pgTable(
@@ -225,13 +227,15 @@ export const emails = pgTable(
       .references(() => dbdExports.registrationNumber)
       .notNull(),
     email: text("email").notNull(),
-    urlId: integer("url_id")
-      .references(() => companyUrls.id)
-      .notNull(),
+    url: text("url").notNull(),
   },
   (table) => [
-    index("emails_url_id_idx").on(table.urlId),
+    index("emails_url_idx").on(table.url),
     index("emails_registration_number_idx").on(table.registrationNumber),
+    index("emails_registration_number_url_idx").on(
+      table.registrationNumber,
+      table.url
+    ),
     index("emails_email_idx").on(table.email),
   ]
 )
@@ -241,10 +245,10 @@ export const emailRelations = relations(emails, ({ one }) => ({
     fields: [emails.registrationNumber],
     references: [dbdExports.registrationNumber],
   }),
-  url: one(companyUrls, {
-    fields: [emails.urlId],
-    references: [companyUrls.id],
-  }),
+  // url: one(companyUrls, {
+  //   fields: [emails.url],
+  //   references: [companyUrls.url],
+  // }),
 }))
 
 export const phoneNumbers = pgTable(
@@ -257,13 +261,15 @@ export const phoneNumbers = pgTable(
       .references(() => dbdExports.registrationNumber)
       .notNull(),
     phoneNumber: text("phone_number").notNull(),
-    urlId: integer("url_id")
-      .references(() => companyUrls.id)
-      .notNull(),
+    url: text("url").notNull(),
   },
   (table) => [
-    index("phone_numbers_url_id_idx").on(table.urlId),
+    index("phone_numbers_url_idx").on(table.url),
     index("phone_numbers_registration_number_idx").on(table.registrationNumber),
+    index("phone_numbers_registration_number_url_idx").on(
+      table.registrationNumber,
+      table.url
+    ),
     index("phone_numbers_phone_number_idx").on(table.phoneNumber),
   ]
 )
@@ -274,8 +280,8 @@ export const phoneNumberRelations = relations(phoneNumbers, ({ one }) => ({
     references: [dbdExports.registrationNumber],
   }),
   url: one(companyUrls, {
-    fields: [phoneNumbers.urlId],
-    references: [companyUrls.id],
+    fields: [phoneNumbers.url],
+    references: [companyUrls.url],
   }),
 }))
 
@@ -285,7 +291,7 @@ export const companySummaries = pgTable("company_summaries", {
   })
     .primaryKey()
     .references(() => dbdExports.registrationNumber),
-  description: text("description"),
+  description: text("description").notNull(),
   news: text("news"),
 })
 
