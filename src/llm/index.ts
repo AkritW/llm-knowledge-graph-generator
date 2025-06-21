@@ -69,7 +69,7 @@ const reqLlm = (userPrompt: string) =>
   })
 
 export const llm = async (payload: LlmInputSchema) => {
-  console.log("Input:", normalizeInput(payload))
+  // console.log("Input:", normalizeInput(payload))
 
   const rawGptOutput = await reqLlm(
     JSON.stringify(normalizeInput(payload), null, 2)
@@ -107,6 +107,8 @@ export const llm = async (payload: LlmInputSchema) => {
       )}`
     )
   }
+
+  console.log(result.data)
 
   return result.data
 }

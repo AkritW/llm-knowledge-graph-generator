@@ -1,4 +1,4 @@
-import { isNotNull } from "drizzle-orm"
+import { and, eq, isNotNull } from "drizzle-orm"
 import { db } from "./db"
 import { companyUrls } from "./db/schema"
 import amqp from "amqplib"
@@ -17,7 +17,10 @@ const a = [
   ...new Set(
     (
       await db.query.companyUrls.findMany({
-        where: isNotNull(companyUrls.isSelected),
+        where: and(
+          eq(companyUrls.isSelected, true),
+          isNotNull(companyUrls.rawHtml)
+        ),
         columns: { registrationNumber: true },
       })
     ).map((_) => _.registrationNumber)
